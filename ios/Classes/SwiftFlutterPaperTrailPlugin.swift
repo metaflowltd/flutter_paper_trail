@@ -1,7 +1,23 @@
 import Flutter
 import UIKit
 import PaperTrailLumberjack
-import DeviceKit
+
+extension DDLogLevel {
+    static func fromString(logLevelString:String) -> DDLogLevel {
+        switch logLevelString {
+        case "error":
+            return DDLogLevel.error
+        case "warning":
+            return DDLogLevel.warning
+        case "info":
+            return DDLogLevel.info
+        case "debug":
+            return DDLogLevel.debug
+        default:
+            return DDLogLevel.info
+        }
+    }
+}
 
 public class SwiftFlutterPaperTrailPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -11,11 +27,43 @@ public class SwiftFlutterPaperTrailPlugin: NSObject, FlutterPlugin {
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        result("iOS " + UIDevice.current.systemVersion)
         if call.method == "initLogger" {
             self.setupLoggerAndParseArguments(call, result: result)
         }
+        if call.method == "log"{
+            logMessageAndParseArguments(call, result: result)
+        }
     }
+    
+    private func logMessageAndParseArguments(_ call: FlutterMethodCall, result: @escaping FlutterResult){
+        guard let params = call.arguments as? Dictionary<String,String> else {
+            result(nil)
+            return
+        }
+        
+        guard let message = params["message"] else {
+            result(nil)
+            return
+        }
+        guard let logLevelString = params["logLevel"] else {
+            result(nil)
+            return
+        }
+        let logLevel = DDLogLevel.fromString(logLevelString: logLevelString)
+        switch logLevel {
+        case .debug:
+            DDLogDebug(message)
+        case .info:
+            DDLogInfo(message)
+        case .error:
+            DDLogError(message)
+        default:
+            DDLogError(message)
+        }
+        
+        result("logged")
+    }
+    
     
     private func setupLoggerAndParseArguments(_ call: FlutterMethodCall, result: @escaping FlutterResult){
         guard let params = call.arguments as? Dictionary<String,String> else {
@@ -45,18 +93,16 @@ public class SwiftFlutterPaperTrailPlugin: NSObject, FlutterPlugin {
             return
         }
         self.setupLogger(hostName: hostName, port: port, programName: programName, machineName: machineName)
-        result("OK")
+        result("Logger initialized")
     }
     
-    private func setupLogger(hostName:String, port:UInt, programName:String, machineName:String ){
+    private func setupLogger(hostName:String, port:UInt, programName:String, machineName:String){
         let paperTrailLogger = RMPaperTrailLogger.sharedInstance()!
-        paperTrailLogger.host = hostName + ".papertrailapp.com" //Your host here
-        paperTrailLogger.port = port //Your port number here
+        paperTrailLogger.host = hostName
+        paperTrailLogger.port = port
         
         paperTrailLogger.programName = programName
-        paperTrailLogger.machineName = Device().description
+        paperTrailLogger.machineName = machineName
         DDLog.add(paperTrailLogger)
-        DDLog.add(DDTTYLogger.sharedInstance) // TTY = Xcode console
-        
     }
 }

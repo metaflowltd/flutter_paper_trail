@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_paper_trail/flutter_paper_trail.dart';
 
 void main() => runApp(new MyApp());
@@ -12,8 +11,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-
   @override
   void initState() {
     super.initState();
@@ -22,33 +19,33 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      platformVersion = await FlutterPaperTrail.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
+    return FlutterPaperTrail.initLogger(
+        hostName: "secret.papertrailapp.com",
+        programName: "flutter-test-app",
+        port: 9999,
+        machineName: "Simulator(iPhone8)");
+    //for machine name use Flutter DeviceInfoPlugin
   }
 
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
       home: new Scaffold(
+        floatingActionButton: new FloatingActionButton(
+          onPressed: () async {
+            await FlutterPaperTrail.logError("I love logging errors on paper trail");
+            await FlutterPaperTrail.logInfo("I love logging infos on paper trail");
+            await FlutterPaperTrail.logWarning("I love logging warnings on paper trail");
+            await FlutterPaperTrail.logDebug("I love logging debugs on paper trail");
+          },
+          tooltip: 'Add Error',
+          child: const Icon(Icons.add),
+        ),
         appBar: new AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('Papertrail logging example'),
         ),
         body: new Center(
-          child: new Text('Running on: $_platformVersion\n'),
+          child: new Text('Press the + button to test logging to Papertrail'),
         ),
       ),
     );

@@ -8,10 +8,8 @@ PODS:
     - CocoaLumberjack/Default
   - CocoaLumberjack/Swift (3.4.2):
     - CocoaLumberjack/Default
-  - DeviceKit (1.7.0)
   - Flutter (1.0.0)
   - flutter_paper_trail (0.0.1):
-    - DeviceKit
     - Flutter
     - PaperTrailLumberjack/Swift
   - PaperTrailLumberjack/Core (0.1.8):
@@ -29,7 +27,6 @@ SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - CocoaAsyncSocket
     - CocoaLumberjack
-    - DeviceKit
     - PaperTrailLumberjack
 
 EXTERNAL SOURCES:
@@ -41,9 +38,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   CocoaAsyncSocket: eafaa68a7e0ec99ead0a7b35015e0bf25d2c8987
   CocoaLumberjack: db7cc9e464771f12054c22ff6947c5a58d43a0fd
-  DeviceKit: 6a5bdeb103c03757bb94aef1ccb01e08bc8ef4ee
   Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
-  flutter_paper_trail: 772fc896036aa9493c47b5233754b9aa1e122f37
+  flutter_paper_trail: aaa6c806ae7a7009e65c73fd92b54f2bf9e09e78
   PaperTrailLumberjack: afd1a729641ebb2e10975db30a5f8ebc890cccd6
 
 PODFILE CHECKSUM: 7765ea4305eaab0b3dfd384c7de11902aa3195fd
