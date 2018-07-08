@@ -1,9 +1,9 @@
 name: flutter_paper_trail
 description: A new flutter plugin project.
-version: 0.0.1
+version: 0.0.3
 authors:
  - Lumen Team <support@lumen.me>
-homepage: http://lumen.me
+homepage: https://github.com/metaflowltd/flutter_paper_trail
 
 dependencies:
   meta: "^1.0.5"
