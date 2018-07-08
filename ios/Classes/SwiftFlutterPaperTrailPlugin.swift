@@ -30,23 +30,49 @@ public class SwiftFlutterPaperTrailPlugin: NSObject, FlutterPlugin {
         if call.method == "initLogger" {
             self.setupLoggerAndParseArguments(call, result: result)
         }
+        
+        if call.method == "setUserId" {
+            self.configureUserAndParseArguments(call, result: result)
+        }
+        
         if call.method == "log"{
             logMessageAndParseArguments(call, result: result)
         }
+        result(FlutterMethodNotImplemented)
     }
+    
+    private func configureUserAndParseArguments(_ call: FlutterMethodCall, result: @escaping FlutterResult){
+        guard let params = call.arguments as? Dictionary<String,String> else {
+            result(FlutterError(code: "Missing arguments", message: nil, details: nil))
+            return
+        }
+        
+        guard let userId = params["userId"] else {
+            result(FlutterError(code: "Missing arguments", message: "Missing userId", details: nil))
+            return
+        }
+        guard let _ = RMPaperTrailLogger.sharedInstance()?.programName else{
+            result(FlutterError(code: "Cannot call configure user before init logger", message: nil, details: nil))
+            return
+        }
+        let paperTrailLogger = RMPaperTrailLogger.sharedInstance()!
+        paperTrailLogger.programName =  userId + "--on--" + paperTrailLogger.programName!
+        result("Logger updated")
+    }
+    
     
     private func logMessageAndParseArguments(_ call: FlutterMethodCall, result: @escaping FlutterResult){
         guard let params = call.arguments as? Dictionary<String,String> else {
-            result(nil)
+            result(FlutterError(code: "Missing arguments", message: "Missing userId", details: nil))
             return
         }
         
         guard let message = params["message"] else {
-            result(nil)
+            result(FlutterError(code: "Missing arguments", message: "Missing message", details: nil))
             return
         }
         guard let logLevelString = params["logLevel"] else {
-            result(nil)
+            result(FlutterError(code: "Missing arguments", message: "Missing logLevel", details: nil))
             return
         }
         let logLevel = DDLogLevel.fromString(logLevelString: logLevelString)
@@ -67,36 +93,32 @@ public class SwiftFlutterPaperTrailPlugin: NSObject, FlutterPlugin {
     
     private func setupLoggerAndParseArguments(_ call: FlutterMethodCall, result: @escaping FlutterResult){
         guard let params = call.arguments as? Dictionary<String,String> else {
-            result(nil)
+            result(FlutterError(code: "Missing arguments", message: nil, details: nil))
             return
         }
         
         guard let hostName = params["hostName"] else {
-            result(nil)
+            result(FlutterError(code: "Missing arguments", message: "Missing hostName", details: nil))
             return
         }
         guard let programName = params["programName"] else {
-            result(nil)
+            result(FlutterError(code: "Missing arguments", message: "Missing programName", details: nil))
             return
         }
         guard let machineName = params["machineName"] else {
-            result(nil)
+            result(FlutterError(code: "Missing arguments", message: "Missing machineName", details: nil))
             return
         }
         
         guard let portString = params["port"] else {
-            result(nil)
+            result(FlutterError(code: "Missing arguments", message: "Missing port", details: nil))
             return
         }
         guard let port = UInt(portString) else{
-            result(nil)
+            result(FlutterError(code: "Missing arguments", message: "port is not int", details: nil))
             return
         }
-        self.setupLogger(hostName: hostName, port: port, programName: programName, machineName: machineName)
-        result("Logger initialized")
-    }
-    
-    private func setupLogger(hostName:String, port:UInt, programName:String, machineName:String){
+        
         let paperTrailLogger = RMPaperTrailLogger.sharedInstance()!
         paperTrailLogger.host = hostName
         paperTrailLogger.port = port
@@ -104,5 +126,7 @@ public class SwiftFlutterPaperTrailPlugin: NSObject, FlutterPlugin {
         paperTrailLogger.programName = programName
         paperTrailLogger.machineName = machineName
         DDLog.add(paperTrailLogger)
+        
+        result("Logger initialized")
     }
 }

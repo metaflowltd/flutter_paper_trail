@@ -9,6 +9,11 @@ import me.jagdeep.papertrail.timber.PapertrailTree
 import timber.log.Timber
 
 class FlutterPaperTrailPlugin : MethodCallHandler {
+
+  private var _treeBuilder: PapertrailTree.Builder? = null
+  private var _tree: PapertrailTree? = null
+  private var _programName: String? = null
+
   companion object {
     @JvmStatic
     fun registerWith(registrar: Registrar) {
@@ -20,9 +25,42 @@ class FlutterPaperTrailPlugin : MethodCallHandler {
   override fun onMethodCall(call: MethodCall, result: Result) {
     when {
         call.method == "initLogger" -> initLoggerAndParseArguments(call, result)
+        call.method == "setUserId" -> configureUserAndParseArguments(call, result)
         call.method == "log" -> logAndParseArguments(call, result)
         else -> result.notImplemented()
     }
+  }
+
+  private fun configureUserAndParseArguments(call: MethodCall, result: Result){
+    if (call.arguments !is Map<*, *>){
+      result.error("missing arguments", "", null)
+      return
+    }
+
+    val arguments = call.arguments as Map<*, *>?
+
+    if (arguments == null){
+      result.error("missing arguments", "", null)
+      return
+    }
+
+    val userId = arguments["userId"] as String?
+    if (userId == null){
+      result.error("missing argument userId", "", null)
+      return
+    }
+
+    if (_tree == null || _programName == null || _treeBuilder == null ){
+      result.error("Cannot call configure user before init logger", "", null)
+      return
+    }
+    _treeBuilder!!.program(userId + "--on--" + _programName!!)
+
+    Timber.uproot(_tree!!)
+    _tree = _treeBuilder!!.build()
+    Timber.plant(_tree!!)
+    result.success("Logger updated")
+
   }
 
   private fun logAndParseArguments(call: MethodCall, result: Result){
@@ -100,22 +138,27 @@ class FlutterPaperTrailPlugin : MethodCallHandler {
       return
     }
 
-    val programName = arguments["programName"] as String?
-    if (programName == null){
+    _programName = arguments["programName"] as String?
+    if (_programName == null){
       result.error("missing argument programName", "", null)
       return
     }
 
     val safeMachineName = cleanString(machineName)
-    val tree = PapertrailTree.Builder()
-              .system(safeMachineName)
-              .program(safeMachineName)
-              .logger(programName)
-              .host(hostName)
-              .port(port)
-              .build()
 
-    Timber.plant(tree)
+    if (_tree != null){
+      Timber.uproot(_tree!!)
+    }
+
+    _treeBuilder = PapertrailTree.Builder()
+            .system(safeMachineName)
+            .program(_programName!!)
+            .logger(_programName!!)
+            .host(hostName)
+            .port(port)
+
+    _tree = _treeBuilder!!.build()
+    Timber.plant(_tree!!)
     result.success("Logger initialized")
   }
 

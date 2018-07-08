@@ -38,14 +38,26 @@ class _MyAppState extends State<MyApp> {
             await FlutterPaperTrail.logWarning("I love logging warnings on paper trail");
             await FlutterPaperTrail.logDebug("I love logging debugs on paper trail");
           },
-          tooltip: 'Add Error',
+          tooltip: 'Log to papertrail',
           child: const Icon(Icons.add),
         ),
         appBar: new AppBar(
           title: const Text('Papertrail logging example'),
         ),
-        body: new Center(
-          child: new Text('Press the + button to test logging to Papertrail'),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text('Press the + button to test logging to Papertrail'),
+              RaisedButton(
+                child: Text('Identify User'),
+                onPressed: () {
+                  FlutterPaperTrail.setUserId("JohnDeer391");
+                },
+              ),
+              Text('Press the + button again after identifying the user'),
+            ],
+          ),
         ),
       ),
     );
