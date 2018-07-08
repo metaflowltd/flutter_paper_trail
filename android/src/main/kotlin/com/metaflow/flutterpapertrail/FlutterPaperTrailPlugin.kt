@@ -50,10 +50,15 @@ class FlutterPaperTrailPlugin : MethodCallHandler {
       return
     }
 
+    when (logLevel) {
+        "error" -> Timber.e(message)
+        "warning" -> Timber.w(message)
+        "info" -> Timber.i(message)
+        "debug" -> Timber.d(message)
+        else -> Timber.i(message)
+    }
 
-    Timber.d(message, null)
-    Timber.log(1, message, message, null)
-      result.success("logged")
+    result.success("logged")
   }
 
   private fun initLoggerAndParseArguments(call: MethodCall, result: Result){
