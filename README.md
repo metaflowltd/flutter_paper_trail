@@ -6,7 +6,7 @@ Send logs to Papertrail
 # Usage
 
 
-Example:
+Setup:
 
 ```dart
 import 'package:flutter_paper_trail/flutter_paper_trail.dart';
@@ -18,6 +18,17 @@ FlutterPaperTrail.initLogger(
         machineName: "Simulator(iPhone8)");
     //for machine name use Flutter DeviceInfoPlugin
 
+```
+
+Calling:
+
+```dart
 FlutterPaperTrail.logError("My message");
+```
+
+Extra setup (when a user is logged in):
+
+```dart
+FlutterPaperTrail.setUserId("JohnDeer391");
 ```
 
