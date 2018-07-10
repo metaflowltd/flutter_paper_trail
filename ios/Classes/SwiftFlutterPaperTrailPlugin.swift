@@ -29,16 +29,13 @@ public class SwiftFlutterPaperTrailPlugin: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         if call.method == "initLogger" {
             self.setupLoggerAndParseArguments(call, result: result)
-        }
-        
-        if call.method == "setUserId" {
+        }else if call.method == "setUserId" {
             self.configureUserAndParseArguments(call, result: result)
-        }
-        
-        if call.method == "log"{
+        }else if call.method == "log"{
             logMessageAndParseArguments(call, result: result)
+        }else{
+            result(FlutterMethodNotImplemented)
         }
-        result(FlutterMethodNotImplemented)
     }
     
     private func configureUserAndParseArguments(_ call: FlutterMethodCall, result: @escaping FlutterResult){
