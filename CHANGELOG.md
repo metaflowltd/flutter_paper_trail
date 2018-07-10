@@ -6,3 +6,7 @@ Initial release.
 
 * Added setUserId  
 * iOS correctly using the result callback.
+
+## 0.0.5
+
+* iOS plugin handler: fixed if else-if.
