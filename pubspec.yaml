@@ -1,6 +1,6 @@
 name: flutter_paper_trail
-description: A new flutter plugin project.
-version: 0.0.5
+description: A flutter plugin for PaperTrail logging service
+version: 0.0.6
 authors:
  - Lumen Team <support@lumen.me>
 homepage: https://github.com/metaflowltd/flutter_paper_trail
