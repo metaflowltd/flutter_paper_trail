@@ -20,6 +20,8 @@ extension DDLogLevel {
 }
 
 public class SwiftFlutterPaperTrailPlugin: NSObject, FlutterPlugin {
+    private static var programName: String?
+    
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "flutter_paper_trail", binaryMessenger: registrar.messenger())
         let instance = SwiftFlutterPaperTrailPlugin()
@@ -53,7 +55,7 @@ public class SwiftFlutterPaperTrailPlugin: NSObject, FlutterPlugin {
             return
         }
         let paperTrailLogger = RMPaperTrailLogger.sharedInstance()!
-        paperTrailLogger.programName =  userId + "--on--" + paperTrailLogger.programName!
+        paperTrailLogger.programName = userId + "--on--" + SwiftFlutterPaperTrailPlugin.programName!
         result("Logger updated")
     }
     
@@ -98,7 +100,7 @@ public class SwiftFlutterPaperTrailPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "Missing arguments", message: "Missing hostName", details: nil))
             return
         }
-        guard let programName = params["programName"] else {
+        guard let programNameParam = params["programName"] else {
             result(FlutterError(code: "Missing arguments", message: "Missing programName", details: nil))
             return
         }
@@ -120,7 +122,8 @@ public class SwiftFlutterPaperTrailPlugin: NSObject, FlutterPlugin {
         paperTrailLogger.host = hostName
         paperTrailLogger.port = port
         
-        paperTrailLogger.programName = programName
+        SwiftFlutterPaperTrailPlugin.programName = programNameParam
+        paperTrailLogger.programName = SwiftFlutterPaperTrailPlugin.programName
         paperTrailLogger.machineName = machineName
         DDLog.add(paperTrailLogger)
         
