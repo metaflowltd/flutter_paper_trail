@@ -1,18 +1,20 @@
 package com.metaflow.flutterpapertrail
 
+import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import me.jagdeep.papertrail.timber.PapertrailTree
 import timber.log.Timber
 
 class FlutterPaperTrailPlugin : MethodCallHandler {
 
-    private var _treeBuilder: PapertrailTree.Builder? = null
-    private var _tree: PapertrailTree? = null
-    private var _programName: String? = null
+    private var treeBuilder: PapertrailTree.Builder? = null
+    private var tree: PapertrailTree? = null
+    private var programName: String? = null
+    private var userId: String? = null
+    private var traceId: String? = null
 
     companion object {
         @JvmStatic
@@ -23,11 +25,52 @@ class FlutterPaperTrailPlugin : MethodCallHandler {
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
-        when {
-            call.method == "initLogger" -> initLoggerAndParseArguments(call, result)
-            call.method == "setUserId" -> configureUserAndParseArguments(call, result)
-            call.method == "log" -> logAndParseArguments(call, result)
+        when (call.method) {
+            "initLogger" -> initLoggerAndParseArguments(call, result)
+            "setUserId" -> configureUserAndParseArguments(call, result)
+            "setTraceId" -> updateTraceId(call, result)
+            "log" -> logAndParseArguments(call, result)
             else -> result.notImplemented()
+        }
+    }
+
+    private fun updateTraceId(call: MethodCall, result: Result) {
+        if (call.arguments !is Map<*, *>) {
+            result.error("missing arguments", "", null)
+            return
+        }
+
+        val arguments = call.arguments as Map<*, *>?
+
+        if (arguments == null) {
+            result.error("missing arguments", "", null)
+            return
+        }
+
+        val traceId = arguments["traceId"] as String?
+        if (traceId == null) {
+            result.error("missing argument traceId", "", null)
+            return
+        }
+
+        if (tree == null || programName == null || treeBuilder == null) {
+            result.error("Cannot update traceId before init logger", "", null)
+            return
+        }
+
+        this.traceId = traceId
+
+        rePlantTree()
+
+        result.success("Logger updated")
+    }
+
+    private fun rePlantTree() {
+        lets(treeBuilder, tree) { builder, tree ->
+            builder.program("$userId--on--$programName--with--$traceId")
+            Timber.uprootAll()
+            this.tree = builder.build()
+            Timber.plant(tree)
         }
     }
 
@@ -50,15 +93,15 @@ class FlutterPaperTrailPlugin : MethodCallHandler {
             return
         }
 
-        if (_tree == null || _programName == null || _treeBuilder == null) {
+        if (tree == null || programName == null || treeBuilder == null) {
             result.error("Cannot call configure user before init logger", "", null)
             return
         }
-        _treeBuilder!!.program(userId + "--on--" + _programName!!)
 
-        Timber.uproot(_tree!!)
-        _tree = _treeBuilder!!.build()
-        Timber.plant(_tree!!)
+        this.userId = userId
+
+        rePlantTree()
+
         result.success("Logger updated")
     }
 
@@ -137,27 +180,25 @@ class FlutterPaperTrailPlugin : MethodCallHandler {
                     return
                 }
 
-        _programName = arguments["programName"] as String?
-        if (_programName == null) {
+        programName = arguments["programName"] as String?
+        if (programName == null) {
             result.error("missing argument programName", "", null)
             return
         }
 
         val safeMachineName = cleanString(machineName)
 
-        if (_tree != null) {
-            Timber.uproot(_tree!!)
-        }
+        tree?.let { Timber.uproot(it) }
 
-        _treeBuilder = PapertrailTree.Builder()
+        treeBuilder = PapertrailTree.Builder()
                 .system(safeMachineName)
-                .program(_programName!!)
-                .logger(_programName!!)
+                .program(programName!!)
+                .logger(programName!!)
                 .host(hostName)
                 .port(port)
 
-        _tree = _treeBuilder!!.build()
-        Timber.plant(_tree!!)
+        tree = treeBuilder!!.build()
+        Timber.plant(tree!!)
         result.success("Logger initialized")
     }
 

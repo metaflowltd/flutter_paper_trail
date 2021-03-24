@@ -23,6 +23,10 @@ class FlutterPaperTrail {
     return await _channel.invokeMethod('setUserId', {"userId": userId});
   }
 
+  static Future<String> setTraceId(String traceId) async {
+    return await _channel.invokeMethod('setTraceId', {"traceId": traceId});
+  }
+
   static Future<String> logError(String message) async {
     return _log(message, "error");
   }

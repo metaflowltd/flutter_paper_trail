@@ -21,6 +21,8 @@ extension DDLogLevel {
 
 public class SwiftFlutterPaperTrailPlugin: NSObject, FlutterPlugin {
     private static var programName: String?
+    private static var userId: String?
+    private static var traceId: String?
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "flutter_paper_trail", binaryMessenger: registrar.messenger())
@@ -33,7 +35,10 @@ public class SwiftFlutterPaperTrailPlugin: NSObject, FlutterPlugin {
             self.setupLoggerAndParseArguments(call, result: result)
         }else if call.method == "setUserId" {
             self.configureUserAndParseArguments(call, result: result)
-        }else if call.method == "log"{
+        }else if call.method == "setTraceId" {
+            self.updateTraceId(call, result: result)
+        }
+        else if call.method == "log"{
             logMessageAndParseArguments(call, result: result)
         }else{
             result(FlutterMethodNotImplemented)
@@ -50,15 +55,47 @@ public class SwiftFlutterPaperTrailPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "Missing arguments", message: "Missing userId", details: nil))
             return
         }
+        
+        type(of: self).userId = userId
+        
         guard let _ = RMPaperTrailLogger.sharedInstance()?.programName else{
             result(FlutterError(code: "Cannot call configure user before init logger", message: nil, details: nil))
             return
         }
-        let paperTrailLogger = RMPaperTrailLogger.sharedInstance()!
-        paperTrailLogger.programName = userId + "--on--" + SwiftFlutterPaperTrailPlugin.programName!
+        
+        updateLoggerName()
+        
         result("Logger updated")
     }
     
+    private func updateTraceId(_ call: FlutterMethodCall, result: @escaping FlutterResult){
+        guard let params = call.arguments as? Dictionary<String,String> else {
+            result(FlutterError(code: "Missing arguments", message: nil, details: nil))
+            return
+        }
+        
+        guard let traceId = params["traceId"] else {
+            result(FlutterError(code: "Missing arguments", message: "Missing traceId", details: nil))
+            return
+        }
+        guard let _ = RMPaperTrailLogger.sharedInstance()?.programName else{
+            result(FlutterError(code: "Cannot update traceId before init logger", message: nil, details: nil))
+            return
+        }
+        
+        SwiftFlutterPaperTrailPlugin.traceId = traceId
+        
+        updateLoggerName()
+  
+        result("Logger updated")
+    }
+    
+    private func updateLoggerName(){
+        let paperTrailLogger = RMPaperTrailLogger.sharedInstance()!
+        paperTrailLogger.programName = type(of: self).userId ?? "" +
+            "--on--" + type(of: self).programName ?? "" +
+            "--with--" +  type(of: self).traceId ?? ""
+    }
     
     private func logMessageAndParseArguments(_ call: FlutterMethodCall, result: @escaping FlutterResult){
         guard let params = call.arguments as? Dictionary<String,String> else {
