@@ -19,11 +19,11 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    return FlutterPaperTrail.initLogger(
+    await FlutterPaperTrail.initLogger(
         hostName: "secret.papertrailapp.com",
         programName: "flutter-test-app",
         port: 9999,
-        machineName: "Simulator(iPhone8)");
+        machineName: "flutter-test-app");
     //for machine name use Flutter DeviceInfoPlugin
   }
 
