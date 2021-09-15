@@ -1,5 +1,6 @@
 package com.metaflow.flutterpapertrail
 
+import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
@@ -8,25 +9,19 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import me.jagdeep.papertrail.timber.PapertrailTree
 import timber.log.Timber
 
-class FlutterPaperTrailPlugin : MethodCallHandler {
+class FlutterPaperTrailPlugin : FlutterPlugin, MethodCallHandler {
+
+    private lateinit var channel: MethodChannel
 
     private var _treeBuilder: PapertrailTree.Builder? = null
     private var _tree: PapertrailTree? = null
     private var _programName: String? = null
 
-    companion object {
-        @JvmStatic
-        fun registerWith(registrar: Registrar) {
-            val channel = MethodChannel(registrar.messenger(), "flutter_paper_trail")
-            channel.setMethodCallHandler(FlutterPaperTrailPlugin())
-        }
-    }
-
     override fun onMethodCall(call: MethodCall, result: Result) {
-        when {
-            call.method == "initLogger" -> initLoggerAndParseArguments(call, result)
-            call.method == "setUserId" -> configureUserAndParseArguments(call, result)
-            call.method == "log" -> logAndParseArguments(call, result)
+        when (call.method) {
+            "initLogger" -> initLoggerAndParseArguments(call, result)
+            "setUserId" -> configureUserAndParseArguments(call, result)
+            "log" -> logAndParseArguments(call, result)
             else -> result.notImplemented()
         }
     }
@@ -164,6 +159,18 @@ class FlutterPaperTrailPlugin : MethodCallHandler {
     private fun cleanString(stringToClean: String): String {
         val re = Regex("[^A-Za-z0-9 ]")
         return re.replace(stringToClean, "")
+    }
+
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        // Plugin is now attached to a Flutter experience.
+        // Create Channel
+        channel = MethodChannel(binding.binaryMessenger, "flutter_paper_trail")
+        channel.setMethodCallHandler(this)
+    }
+
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        // Plugin is no longer attached to a Flutter experience.
+        channel.setMethodCallHandler(null)
     }
 }
 
