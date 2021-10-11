@@ -1,32 +1,55 @@
 package com.metaflow.flutterpapertrail
 
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import me.jagdeep.papertrail.timber.PapertrailTree
 import timber.log.Timber
 
-class FlutterPaperTrailPlugin : MethodCallHandler {
 
-    private var _treeBuilder: PapertrailTree.Builder? = null
-    private var _tree: PapertrailTree? = null
-    private var _programName: String? = null
+class FlutterPaperTrailPlugin : MethodCallHandler, FlutterPlugin {
+
+    private var channel: MethodChannel? = null
+    private var treeBuilder: PapertrailTree.Builder? = null
+    private var tree: PapertrailTree? = null
+    private var programName: String? = null
 
     companion object {
         @JvmStatic
+        @SuppressWarnings("deprecation")
         fun registerWith(registrar: Registrar) {
-            val channel = MethodChannel(registrar.messenger(), "flutter_paper_trail")
-            channel.setMethodCallHandler(FlutterPaperTrailPlugin())
+            val plugin = FlutterPaperTrailPlugin()
+            plugin.onAttachedToEngine(registrar.messenger())
         }
     }
 
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        this.onAttachedToEngine(binding.binaryMessenger)
+    }
+
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        channel?.setMethodCallHandler(null)
+        channel = null
+    }
+
+    private fun onAttachedToEngine(messenger: BinaryMessenger) {
+        channel = MethodChannel(
+            messenger,
+            "flutter_paper_trail")
+            .apply {
+                setMethodCallHandler(this@FlutterPaperTrailPlugin)
+            }
+    }
+
     override fun onMethodCall(call: MethodCall, result: Result) {
-        when {
-            call.method == "initLogger" -> initLoggerAndParseArguments(call, result)
-            call.method == "setUserId" -> configureUserAndParseArguments(call, result)
-            call.method == "log" -> logAndParseArguments(call, result)
+        when (call.method) {
+            "initLogger" -> initLoggerAndParseArguments(call, result)
+            "setUserId" -> configureUserAndParseArguments(call, result)
+            "log" -> logAndParseArguments(call, result)
             else -> result.notImplemented()
         }
     }
@@ -50,15 +73,15 @@ class FlutterPaperTrailPlugin : MethodCallHandler {
             return
         }
 
-        if (_tree == null || _programName == null || _treeBuilder == null) {
+        if (tree == null || programName == null || treeBuilder == null) {
             result.error("Cannot call configure user before init logger", "", null)
             return
         }
-        _treeBuilder!!.program(userId + "--on--" + _programName!!)
+        treeBuilder?.program("$userId--on--$programName")
 
-        Timber.uproot(_tree!!)
-        _tree = _treeBuilder!!.build()
-        Timber.plant(_tree!!)
+        Timber.uproot(tree!!)
+        tree = treeBuilder!!.build()
+        Timber.plant(tree!!)
         result.success("Logger updated")
     }
 
@@ -130,34 +153,34 @@ class FlutterPaperTrailPlugin : MethodCallHandler {
         }
 
         val port =
-                try {
-                    portString.toInt()
-                } catch (e: Exception) {
-                    result.error("port is not a number", "", null)
-                    return
-                }
+            try {
+                portString.toInt()
+            } catch (e: Exception) {
+                result.error("port is not a number", "", null)
+                return
+            }
 
-        _programName = arguments["programName"] as String?
-        if (_programName == null) {
+        programName = arguments["programName"] as String?
+        if (programName == null) {
             result.error("missing argument programName", "", null)
             return
         }
 
         val safeMachineName = cleanString(machineName)
 
-        if (_tree != null) {
-            Timber.uproot(_tree!!)
+        if (tree != null) {
+            Timber.uproot(tree!!)
         }
 
-        _treeBuilder = PapertrailTree.Builder()
-                .system(safeMachineName)
-                .program(_programName!!)
-                .logger(_programName!!)
-                .host(hostName)
-                .port(port)
+        treeBuilder = PapertrailTree.Builder()
+            .system(safeMachineName)
+            .program(programName!!)
+            .logger(programName!!)
+            .host(hostName)
+            .port(port)
 
-        _tree = _treeBuilder!!.build()
-        Timber.plant(_tree!!)
+        tree = treeBuilder!!.build()
+        Timber.plant(tree!!)
         result.success("Logger initialized")
     }
 

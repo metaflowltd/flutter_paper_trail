@@ -1,16 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:meta/meta.dart';
 
 class FlutterPaperTrail {
-  static const MethodChannel _channel = const MethodChannel('flutter_paper_trail');
+  static const MethodChannel _channel =
+      const MethodChannel('flutter_paper_trail');
 
-  static Future<String> initLogger(
-      {@required String hostName,
-      @required int port,
-      @required String programName,
-      @required String machineName}) async {
+  static Future<String> initLogger({
+    required String hostName,
+    required int port,
+    required String programName,
+    required String machineName,
+  }) async {
     return await _channel.invokeMethod('initLogger', {
       "hostName": hostName,
       "machineName": machineName,
@@ -40,6 +41,7 @@ class FlutterPaperTrail {
   }
 
   static Future<String> _log(String message, String logLevel) async {
-    return await _channel.invokeMethod('log', {"message": message, "logLevel": logLevel});
+    return await _channel
+        .invokeMethod('log', {"message": message, "logLevel": logLevel});
   }
 }
