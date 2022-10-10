@@ -49,7 +49,7 @@ class _MyAppState extends State<MyApp> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text('Press the + button to test logging to Papertrail'),
-              RaisedButton(
+              ElevatedButton(
                 child: Text('Identify User'),
                 onPressed: () {
                   FlutterPaperTrail.setUserId("JohnDeer391");

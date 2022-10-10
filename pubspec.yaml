@@ -1,8 +1,6 @@
 name: flutter_paper_trail
 description: A flutter plugin for PaperTrail logging service
-version: 0.0.6
-authors:
- - Alex Queudot <alexq@levinriegner.com>
+version: 1.0.2
 homepage: https://github.com/levin-riegner/flutter_paper_trail
 
 environment:

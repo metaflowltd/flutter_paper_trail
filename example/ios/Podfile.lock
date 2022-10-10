@@ -1,0 +1,44 @@
+PODS:
+  - CocoaAsyncSocket (7.6.5)
+  - CocoaLumberjack (3.7.4):
+    - CocoaLumberjack/Core (= 3.7.4)
+  - CocoaLumberjack/Core (3.7.4)
+  - CocoaLumberjack/Swift (3.7.4):
+    - CocoaLumberjack/Core
+  - Flutter (1.0.0)
+  - flutter_paper_trail (0.0.1):
+    - Flutter
+    - PaperTrailLumberjack/Swift
+  - PaperTrailLumberjack/Core (0.1.9):
+    - CocoaAsyncSocket (~> 7.6)
+    - CocoaLumberjack (~> 3.4)
+  - PaperTrailLumberjack/Swift (0.1.9):
+    - CocoaLumberjack/Swift (~> 3.4)
+    - PaperTrailLumberjack/Core
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - flutter_paper_trail (from `.symlinks/plugins/flutter_paper_trail/ios`)
+
+SPEC REPOS:
+  trunk:
+    - CocoaAsyncSocket
+    - CocoaLumberjack
+    - PaperTrailLumberjack
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  flutter_paper_trail:
+    :path: ".symlinks/plugins/flutter_paper_trail/ios"
+
+SPEC CHECKSUMS:
+  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
+  CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  flutter_paper_trail: f827b14112a84319a75d04df42874c5263fd5908
+  PaperTrailLumberjack: 449587968d5aeb3eab2d4de041ffc61ee2d49f25
+
+PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3
+
+COCOAPODS: 1.11.3
