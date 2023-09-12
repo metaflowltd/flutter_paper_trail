@@ -18,7 +18,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
+  Future<String> initPlatformState() async {
     return FlutterPaperTrail.initLogger(
         hostName: "secret.papertrailapp.com",
         programName: "flutter-test-app",
@@ -49,7 +49,7 @@ class _MyAppState extends State<MyApp> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text('Press the + button to test logging to Papertrail'),
-              RaisedButton(
+              TextButton(
                 child: Text('Identify User'),
                 onPressed: () {
                   FlutterPaperTrail.setUserId("JohnDeer391");
